@@ -33,7 +33,7 @@ get_git_head_revision(GIT_REFVAR _GIT_VERSION_HASH)
 
 # if there is not git directory we should be in a distributed package
 # we will use version provided in Version.cmake
-if(_GIT_VERSION_HASH STREQUAL "GITDIR-NOTFOUND")
+if(NOT _GIT_VERSION_HASH)
   return()
 endif()
 
@@ -42,15 +42,19 @@ if(_GIT_VERSION_HASH MATCHES "[a-fA-F0-9]+")
   # https://git-scm.com/book/en/v2/Git-Tools-Revision-Selection
   string(SUBSTRING "${_GIT_VERSION_HASH}" 0 7 _GIT_VERSION_HASH)
 endif()
+message(STATUS "_GIT_VERSION_HASH: ${_GIT_VERSION_HASH}")
 
 # find the closest anotated tag with the v prefix for version
 git_describe(_GIT_TAG "--match=v*")
+message(STATUS "_GIT_TAG: ${_GIT_TAG}")
 
 git_commits_since("${PROJECT_SOURCE_DIR}/Version.cmake" _GIT_VERSION_COUNT)
+message(STATUS "_GIT_VERSION_COUNT: ${_GIT_VERSION_COUNT}")
 
 set(VERSION_REGEX "^v([0-9]+)\\.([0-9]+)+(\\.([0-9]+))?(\\.([0-9]+))?((a|b|c|rc)[0-9]*)?(-[0-9]+)?")
 
 string(REGEX MATCH "${VERSION_REGEX}" _out "${_GIT_TAG}")
+message(STATUS "_out: ${_out}")
 
 if("${_out}" STREQUAL "")
   message(WARNING "git tag: \"${_GIT_TAG}\" does not match expected version format!")
